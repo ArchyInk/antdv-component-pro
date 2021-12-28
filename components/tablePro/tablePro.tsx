@@ -2,8 +2,8 @@
  * @author: Archy
  * @Date: 2021-12-22 11:40:53
  * @LastEditors: Archy
- * @LastEditTime: 2021-12-24 16:04:10
- * @FilePath: \sgd-pro-components\components\tablePro\table-pro.tsx
+ * @LastEditTime: 2021-12-28 13:49:52
+ * @FilePath: \sgd-pro-components\components\tablePro\tablePro.tsx
  * @description: 
  */
 import { Dropdown, Menu, MenuItem, Checkbox } from 'ant-design-vue'
@@ -248,7 +248,6 @@ export default defineComponent({
         local.dataSource = res[dataField.value] as object[]
         local.loading = false
       }).catch((err: Error) => {
-        console.error(err);
         local.dataSource = []
         local.loading = false
       })
