@@ -2,7 +2,7 @@
  * @author: Archy
  * @Date: 2021-12-28 10:01:12
  * @LastEditors: Archy
- * @LastEditTime: 2021-12-29 11:10:27
+ * @LastEditTime: 2021-12-29 11:23:20
  * @FilePath: \sgd-pro-components\components\uploadTable\uploadTable.tsx
  * @description: 
  */
@@ -79,9 +79,13 @@ export default defineComponent({
 
     watch(() => local.fileList, (n: any[]) => {
       let success = true
+      let fileRes = null
       const _n: unknown[] = n.map(item => {
         if (item.status === 'uploading') {
           success = false
+        }
+        if ((local.file as any).uid = item.uid) {
+          fileRes = item
         }
         return {
           fileName: item.name,
@@ -91,7 +95,7 @@ export default defineComponent({
         }
       })
       if (success) {
-        emit('uploadResult', n, local.file)
+        emit('uploadResult', n, fileRes)
       }
       local.uploadedList = _n.concat(props.uploadedList)
     }, { deep: true })

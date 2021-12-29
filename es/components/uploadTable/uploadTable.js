@@ -1,19 +1,29 @@
-import { resolveDirective as _resolveDirective, createTextVNode as _createTextVNode, createVNode as _createVNode, Fragment as _Fragment } from "vue";
+import { resolveDirective as _resolveDirective, isVNode as _isVNode, createVNode as _createVNode, createTextVNode as _createTextVNode, Fragment as _Fragment } from "vue";
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
 /*
  * @author: Archy
  * @Date: 2021-12-28 10:01:12
  * @LastEditors: Archy
- * @LastEditTime: 2021-12-28 15:08:45
+ * @LastEditTime: 2021-12-29 11:10:27
  * @FilePath: \sgd-pro-components\components\uploadTable\uploadTable.tsx
  * @description: 
  */
-import { defineComponent, reactive, watch } from 'vue';
+import { defineComponent, reactive, watch, ref } from 'vue';
 import Table from 'ant-design-vue/es/table/Table';
-import { Divider, Upload, Button, Progress } from 'ant-design-vue';
+import { Divider, Upload, Button, Progress, Modal, ConfigProvider, Descriptions, DescriptionsItem } from 'ant-design-vue';
+import zhCN from 'ant-design-vue/es/locale/zh_CN';
 import './style/index.css';
 import getCls from '../shared/util/getCls';
-import getFileSize from '../shared/util/getFileSize';
+import formatFileSize from '../shared/util/formatFileSize';
+
+function _isSlot(s) {
+  return typeof s === 'function' || Object.prototype.toString.call(s) === '[object Object]' && !_isVNode(s);
+}
+
 var uploadTableProps = {
   uploadedList: {
     type: Array,
@@ -32,7 +42,7 @@ var uploadTableProps = {
         dataIndex: 'fileSize',
         customRender: function customRender(_ref) {
           var text = _ref.text;
-          return getFileSize(text * 1);
+          return formatFileSize(text * 1);
         }
       }, {
         title: '上传结果',
@@ -47,8 +57,8 @@ var uploadTableProps = {
     type: String,
     required: true
   },
-  beforeUpload: {
-    type: Function
+  data: {
+    type: Object
   },
   customRow: {
     type: Function
@@ -57,7 +67,7 @@ var uploadTableProps = {
 export default defineComponent({
   name: 'UploadTable',
   props: uploadTableProps,
-  emits: ['download', 'del', 'uploadResult'],
+  emits: ['download', 'del', 'uploadResult', 'cancel', 'submit'],
   setup: function setup(props, _ref2) {
     var slots = _ref2.slots,
         emit = _ref2.emit;
@@ -87,7 +97,8 @@ export default defineComponent({
 
     var local = reactive({
       uploadedList: props.uploadedList,
-      fileList: []
+      fileList: [],
+      file: undefined
     });
     watch(function () {
       return local.fileList;
@@ -108,13 +119,131 @@ export default defineComponent({
       });
 
       if (success) {
-        emit('uploadResult', n);
+        emit('uploadResult', n, local.file);
       }
 
       local.uploadedList = _n.concat(props.uploadedList);
     }, {
       deep: true
     });
+    var modalVisible = ref(false);
+    var beforeUploadResolve = null;
+    var beforeUploadReject = null;
+
+    var renderModal = function renderModal() {
+      var _slots$extendsModal;
+
+      var _slot;
+
+      var handleCancel = function handleCancel() {
+        var _beforeUploadReject;
+
+        modalVisible.value = false;
+        emit('cancel');
+        (_beforeUploadReject = beforeUploadReject) === null || _beforeUploadReject === void 0 ? void 0 : _beforeUploadReject();
+      };
+
+      var handleSubmit = function handleSubmit() {
+        var _beforeUploadResolve;
+
+        modalVisible.value = false;
+        emit('submit');
+        (_beforeUploadResolve = beforeUploadResolve) === null || _beforeUploadResolve === void 0 ? void 0 : _beforeUploadResolve();
+      };
+
+      return _createVNode(ConfigProvider, {
+        "locale": zhCN
+      }, {
+        "default": function _default() {
+          return [_createVNode(Modal, {
+            "visible": modalVisible.value,
+            "onUpdate:visible": function onUpdateVisible($event) {
+              return modalVisible.value = $event;
+            },
+            "width": 400,
+            "title": "文件信息"
+          }, {
+            "default": function _default() {
+              return [slots.modal ? slots.modal() : _createVNode(_Fragment, null, [_createVNode(Descriptions, {
+                "column": 1
+              }, {
+                "default": function _default() {
+                  return [_createVNode(DescriptionsItem, {
+                    "label": "文件名称"
+                  }, {
+                    "default": function _default() {
+                      return [local.file.name];
+                    }
+                  }), _createVNode(DescriptionsItem, {
+                    "label": "文件大小"
+                  }, _isSlot(_slot = formatFileSize(local.file.size)) ? _slot : {
+                    "default": function _default() {
+                      return [_slot];
+                    }
+                  }), _createVNode(DescriptionsItem, {
+                    "label": "文件类型"
+                  }, {
+                    "default": function _default() {
+                      return [local.file.type];
+                    }
+                  })];
+                }
+              }), (_slots$extendsModal = slots.extendsModal) === null || _slots$extendsModal === void 0 ? void 0 : _slots$extendsModal.call(slots)])];
+            },
+            footer: function footer() {
+              return _createVNode(_Fragment, null, [_createVNode(Button, {
+                "key": "cancel",
+                "onClick": handleCancel
+              }, {
+                "default": function _default() {
+                  return [_createTextVNode("\u8FD4\u56DE")];
+                }
+              }), _createVNode(Button, {
+                "key": "submit",
+                "type": "primary",
+                "onClick": handleSubmit
+              }, {
+                "default": function _default() {
+                  return [_createTextVNode("\u4E0A\u4F20")];
+                }
+              })]);
+            }
+          })];
+        }
+      });
+    };
+
+    var beforeUpload = /*#__PURE__*/function () {
+      var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(file) {
+        var p;
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                local.file = file;
+                modalVisible.value = true;
+                _context.next = 4;
+                return new Promise(function (resolve, reject) {
+                  beforeUploadResolve = resolve;
+                  beforeUploadReject = reject;
+                });
+
+              case 4:
+                p = _context.sent;
+                return _context.abrupt("return", p);
+
+              case 6:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee);
+      }));
+
+      return function beforeUpload(_x) {
+        return _ref4.apply(this, arguments);
+      };
+    }();
 
     var renderTable = function renderTable() {
       return _createVNode(Table, {
@@ -173,7 +302,8 @@ export default defineComponent({
             "onUpdate:file-list": function onUpdateFileList($event) {
               return local.fileList = $event;
             },
-            "beforeUpload": props.beforeUpload,
+            "data": props.data,
+            "beforeUpload": beforeUpload,
             "showUploadList": false,
             "name": "file",
             "action": props.action,
@@ -197,7 +327,7 @@ export default defineComponent({
     };
 
     return function () {
-      return _createVNode(_Fragment, null, [renderTable()]);
+      return _createVNode(_Fragment, null, [renderTable(), renderModal()]);
     };
   }
 });
