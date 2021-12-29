@@ -2,7 +2,7 @@
  * @author: Archy
  * @Date: 2021-12-22 11:20:38
  * @LastEditors: Archy
- * @LastEditTime: 2021-12-28 13:27:03
+ * @LastEditTime: 2021-12-28 16:04:45
  * @FilePath: \sgd-pro-components\src\App.vue
  * @description: 
 -->
@@ -30,10 +30,14 @@ const columns = [
   { title: '状态', dataIndex: 'state', width: 200 },
   { title: '种类', dataIndex: 'type', width: 200 },
 ]
-const uploadedList = [
+const uploadedList = ref([
   { fileName: '文件1', fileSize: '100', mid: 1 },
   { fileName: '文件2', fileSize: '200', mid: 2 }
-]
+])
+
+setTimeout(() => {
+  uploadedList.value.push({ fileName: '文件3', fileSize: '200', mid: 3 })
+}, 2000)
 const table = ref(null)
 
 // const getData = () => fetch('http://rap2api.taobao.org/app/mock/293243/getResources').then(async res => {

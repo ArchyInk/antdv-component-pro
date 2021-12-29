@@ -2,19 +2,22 @@
  * @author: Archy
  * @Date: 2021-12-28 10:01:12
  * @LastEditors: Archy
- * @LastEditTime: 2021-12-28 14:21:23
+ * @LastEditTime: 2021-12-29 11:10:27
  * @FilePath: \sgd-pro-components\components\uploadTable\uploadTable.tsx
  * @description: 
  */
-import { defineComponent, PropType, reactive, watch } from 'vue';
+import { defineComponent, PropType, reactive, watch, ref } from 'vue';
 import Table from 'ant-design-vue/es/table/Table'
 import { ColumnType, ColumnGroupType } from 'ant-design-vue/es/table/interface'
-import { Divider, Upload, Button, Progress } from 'ant-design-vue'
+import { GetComponentProps } from 'ant-design-vue/es/vc-table/interface'
+import { Divider, Upload, Button, Progress, Modal, ConfigProvider, Descriptions, DescriptionsItem } from 'ant-design-vue'
+import zhCN from 'ant-design-vue/es/locale/zh_CN'
+
 import './style/index.less'
 import getCls from '../shared/util/getCls';
-import getFileSize from '../shared/util/getFileSize'
-export type UploadTableProps = {
-}
+import formatFileSize from '../shared/util/formatFileSize'
+
+export type UploadTableProps = typeof uploadTableProps
 
 const uploadTableProps = {
   uploadedList: { type: Array, default: () => [] },
@@ -27,7 +30,7 @@ const uploadTableProps = {
         title: '文件大小',
         dataIndex: 'fileSize',
         customRender: ({ text }: Record<string, any>) => {
-          return getFileSize(text * 1)
+          return formatFileSize(text * 1)
         }
       }, {
         title: '上传结果',
@@ -39,12 +42,14 @@ const uploadTableProps = {
     ]
   },
   action: { type: String, required: true },
-  beforeUpload: { type: Function as (...args: any[]) => any }
+  data: { type: Object },
+  customRow: { type: Function }
 }
 
 export default defineComponent({
   name: 'UploadTable',
   props: uploadTableProps,
+  emits: ['download', 'del', 'uploadResult', 'cancel', 'submit'],
   setup(props, { slots, emit }) {
     const download = () => {
       emit('download')
@@ -66,9 +71,10 @@ export default defineComponent({
       local.fileList = fileList
     }
 
-    const local = reactive({
+    const local = reactive<{ uploadedList: unknown[], fileList: Array<File>, file: File | undefined }>({
       uploadedList: props.uploadedList,
-      fileList: []
+      fileList: [],
+      file: undefined
     })
 
     watch(() => local.fileList, (n: any[]) => {
@@ -81,20 +87,72 @@ export default defineComponent({
           fileName: item.name,
           fileSize: item.size,
           percent: Number(item.percent.toFixed(0)),
-          status: item.status === 'uploading' ? 'normal' : item.status === 'success' ? 'success' : "exception"
+          status: item.status === 'uploading' ? 'normal' : item.status === 'done' ? 'success' : "exception"
         }
       })
       if (success) {
-        emit('uploadResult', n.filter(item => {
-          return item.event && item.event.response.success
-        }))
+        emit('uploadResult', n, local.file)
       }
       local.uploadedList = _n.concat(props.uploadedList)
     }, { deep: true })
 
+    const modalVisible = ref(false)
+    let beforeUploadResolve: ((value: void | PromiseLike<void>) => void) | null = null
+    let beforeUploadReject: ((reason?: any) => void) | null = null
+
+
+    const renderModal = () => {
+      const handleCancel = () => {
+        modalVisible.value = false
+        emit('cancel')
+        beforeUploadReject?.()
+      }
+      const handleSubmit = () => {
+        modalVisible.value = false
+        emit('submit')
+        beforeUploadResolve?.()
+      }
+      return (
+        <ConfigProvider locale={zhCN}>
+          <Modal v-model:visible={modalVisible.value} width={400} title="文件信息" v-slots={{
+            footer: () => (<>
+              <Button key="cancel" onClick={handleCancel}>返回</Button>
+              <Button key="submit" type="primary" onClick={handleSubmit}>上传</Button>
+            </>
+            )
+          }}>
+            {
+              slots.modal ?
+                slots.modal() :
+                <>
+                  <Descriptions column={1}>
+                    <DescriptionsItem label="文件名称">{(local.file as File).name}</DescriptionsItem>
+                    <DescriptionsItem label="文件大小">{formatFileSize((local.file as File).size)}</DescriptionsItem>
+                    <DescriptionsItem label="文件类型">{(local.file as File).type}</DescriptionsItem>
+                  </Descriptions>
+                  {slots.extendsModal?.()}
+                </>
+            }
+          </Modal >
+        </ConfigProvider >
+      )
+    }
+
+    const beforeUpload = async (file: any) => {
+      local.file = file
+      modalVisible.value = true
+      const p = await new Promise<void>((resolve, reject) => {
+        beforeUploadResolve = resolve
+        beforeUploadReject = reject
+      })
+      return p
+    }
+
     const renderTable = () => {
       return <Table class={getCls('upload-table')} size="small" columns={props.columns}
+        customRow={props.customRow as GetComponentProps<any>}
         dataSource={local.uploadedList} v-slots={{
+          title: (scope: any) => <>{slots.title?.(scope)}</>,
           bodyCell: (scope: any) => {
             scope.funs = funs
             if (scope.column.key === 'actions') {
@@ -124,7 +182,8 @@ export default defineComponent({
             return (
               <Upload
                 v-model:file-list={local.fileList}
-                beforeUpload={props.beforeUpload}
+                data={props.data}
+                beforeUpload={beforeUpload}
                 showUploadList={false}
                 name="file"
                 action={props.action}
@@ -143,6 +202,7 @@ export default defineComponent({
       return (
         <>
           {renderTable()}
+          {renderModal()}
         </>
       )
     }

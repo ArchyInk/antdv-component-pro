@@ -4,7 +4,7 @@ import { resolveDirective as _resolveDirective, createTextVNode as _createTextVN
  * @author: Archy
  * @Date: 2021-12-28 10:01:12
  * @LastEditors: Archy
- * @LastEditTime: 2021-12-28 14:21:23
+ * @LastEditTime: 2021-12-28 15:08:45
  * @FilePath: \sgd-pro-components\components\uploadTable\uploadTable.tsx
  * @description: 
  */
@@ -49,11 +49,15 @@ var uploadTableProps = {
   },
   beforeUpload: {
     type: Function
+  },
+  customRow: {
+    type: Function
   }
 };
 export default defineComponent({
   name: 'UploadTable',
   props: uploadTableProps,
+  emits: ['download', 'del', 'uploadResult'],
   setup: function setup(props, _ref2) {
     var slots = _ref2.slots,
         emit = _ref2.emit;
@@ -99,14 +103,12 @@ export default defineComponent({
           fileName: item.name,
           fileSize: item.size,
           percent: Number(item.percent.toFixed(0)),
-          status: item.status === 'uploading' ? 'normal' : item.status === 'success' ? 'success' : "exception"
+          status: item.status === 'uploading' ? 'normal' : item.status === 'done' ? 'success' : "exception"
         };
       });
 
       if (success) {
-        emit('uploadResult', n.filter(function (item) {
-          return item.event && item.event.response.success;
-        }));
+        emit('uploadResult', n);
       }
 
       local.uploadedList = _n.concat(props.uploadedList);
@@ -119,8 +121,14 @@ export default defineComponent({
         "class": getCls('upload-table'),
         "size": "small",
         "columns": props.columns,
+        "customRow": props.customRow,
         "dataSource": local.uploadedList
       }, {
+        title: function title(scope) {
+          var _slots$title;
+
+          return _createVNode(_Fragment, null, [(_slots$title = slots.title) === null || _slots$title === void 0 ? void 0 : _slots$title.call(slots, scope)]);
+        },
         bodyCell: function bodyCell(scope) {
           scope.funs = funs;
 
