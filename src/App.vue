@@ -36,7 +36,7 @@ const uploadedList = ref([
 ])
 
 setTimeout(() => {
-  uploadedList.value.push({ fileName: '文件3', fileSize: '200', mid: 3 })
+  uploadedList.value = [{ fileName: '文件3', fileSize: '200', mid: 3 }]
 }, 2000)
 const table = ref(null)
 

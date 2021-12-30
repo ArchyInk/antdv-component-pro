@@ -8,7 +8,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
  * @author: Archy
  * @Date: 2021-12-28 10:01:12
  * @LastEditors: Archy
- * @LastEditTime: 2021-12-29 11:10:27
+ * @LastEditTime: 2021-12-29 15:00:36
  * @FilePath: \sgd-pro-components\components\uploadTable\uploadTable.tsx
  * @description: 
  */
@@ -60,6 +60,10 @@ var uploadTableProps = {
   data: {
     type: Object
   },
+  showAdd: {
+    type: Boolean,
+    "default": true
+  },
   customRow: {
     type: Function
   }
@@ -101,13 +105,23 @@ export default defineComponent({
       file: undefined
     });
     watch(function () {
+      return props.uploadedList;
+    }, function (n) {
+      local.uploadedList = n;
+    });
+    watch(function () {
       return local.fileList;
     }, function (n) {
       var success = true;
+      var fileRes = null;
 
       var _n = n.map(function (item) {
         if (item.status === 'uploading') {
           success = false;
+        }
+
+        if (local.file.uid = item.uid) {
+          fileRes = item;
         }
 
         return {
@@ -119,7 +133,10 @@ export default defineComponent({
       });
 
       if (success) {
-        emit('uploadResult', n, local.file);
+        emit('uploadResult', {
+          fileList: n,
+          file: fileRes
+        });
       }
 
       local.uploadedList = _n.concat(props.uploadedList);
@@ -297,7 +314,7 @@ export default defineComponent({
           }
         },
         footer: function footer() {
-          return _createVNode(Upload, {
+          return _createVNode(_Fragment, null, [props.showAdd ? _createVNode(Upload, {
             "file-list": local.fileList,
             "onUpdate:file-list": function onUpdateFileList($event) {
               return local.fileList = $event;
@@ -321,7 +338,7 @@ export default defineComponent({
                 }
               })];
             }
-          });
+          }) : null]);
         }
       });
     };

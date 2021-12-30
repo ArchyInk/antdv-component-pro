@@ -2,7 +2,7 @@
  * @author: Archy
  * @Date: 2021-12-28 10:01:12
  * @LastEditors: Archy
- * @LastEditTime: 2021-12-29 11:23:20
+ * @LastEditTime: 2021-12-29 15:00:36
  * @FilePath: \sgd-pro-components\components\uploadTable\uploadTable.tsx
  * @description: 
  */
@@ -43,6 +43,7 @@ const uploadTableProps = {
   },
   action: { type: String, required: true },
   data: { type: Object },
+  showAdd: { type: Boolean, default: true },
   customRow: { type: Function }
 }
 
@@ -77,6 +78,10 @@ export default defineComponent({
       file: undefined
     })
 
+    watch(() => props.uploadedList, (n: any[]) => {
+      local.uploadedList = n
+    })
+
     watch(() => local.fileList, (n: any[]) => {
       let success = true
       let fileRes = null
@@ -95,7 +100,7 @@ export default defineComponent({
         }
       })
       if (success) {
-        emit('uploadResult', n, fileRes)
+        emit('uploadResult', { fileList: n, file: fileRes })
       }
       local.uploadedList = _n.concat(props.uploadedList)
     }, { deep: true })
@@ -184,17 +189,21 @@ export default defineComponent({
           },
           footer: () => {
             return (
-              <Upload
-                v-model:file-list={local.fileList}
-                data={props.data}
-                beforeUpload={beforeUpload}
-                showUploadList={false}
-                name="file"
-                action={props.action}
-                onChange={fileChange}
-              >
-                <Button style={{ width: '100%' }} type="dashed">添加</Button>
-              </Upload >
+              <>
+                {
+                  props.showAdd ? <Upload
+                    v-model:file-list={local.fileList}
+                    data={props.data}
+                    beforeUpload={beforeUpload}
+                    showUploadList={false}
+                    name="file"
+                    action={props.action}
+                    onChange={fileChange}
+                  >
+                    <Button style={{ width: '100%' }} type="dashed" >添加</Button>
+                  </Upload > : null
+                }
+              </>
             )
           }
         }
