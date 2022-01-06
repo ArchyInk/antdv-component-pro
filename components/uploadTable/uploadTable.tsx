@@ -2,7 +2,7 @@
  * @author: Archy
  * @Date: 2021-12-28 10:01:12
  * @LastEditors: Archy
- * @LastEditTime: 2021-12-29 15:00:36
+ * @LastEditTime: 2022-01-05 10:21:51
  * @FilePath: \sgd-pro-components\components\uploadTable\uploadTable.tsx
  * @description: 
  */
@@ -161,7 +161,7 @@ export default defineComponent({
       return <Table class={getCls('upload-table')} size="small" columns={props.columns}
         customRow={props.customRow as GetComponentProps<any>}
         dataSource={local.uploadedList} v-slots={{
-          title: (scope: any) => <>{slots.title?.(scope)}</>,
+          title: slots.title ? (scope: any) => <>{slots.title?.(scope)}</> : undefined,
           bodyCell: (scope: any) => {
             scope.funs = funs
             if (scope.column.key === 'actions') {

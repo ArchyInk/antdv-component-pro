@@ -8,7 +8,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
  * @author: Archy
  * @Date: 2021-12-28 10:01:12
  * @LastEditors: Archy
- * @LastEditTime: 2021-12-29 15:00:36
+ * @LastEditTime: 2022-01-05 10:21:51
  * @FilePath: \sgd-pro-components\components\uploadTable\uploadTable.tsx
  * @description: 
  */
@@ -270,11 +270,11 @@ export default defineComponent({
         "customRow": props.customRow,
         "dataSource": local.uploadedList
       }, {
-        title: function title(scope) {
+        title: slots.title ? function (scope) {
           var _slots$title;
 
           return _createVNode(_Fragment, null, [(_slots$title = slots.title) === null || _slots$title === void 0 ? void 0 : _slots$title.call(slots, scope)]);
-        },
+        } : undefined,
         bodyCell: function bodyCell(scope) {
           scope.funs = funs;
 

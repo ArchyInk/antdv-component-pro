@@ -10,7 +10,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  * @author: Archy
  * @Date: 2021-12-22 11:40:53
  * @LastEditors: Archy
- * @LastEditTime: 2021-12-28 13:49:52
+ * @LastEditTime: 2021-12-30 16:40:20
  * @FilePath: \sgd-pro-components\components\tablePro\tablePro.tsx
  * @description: 
  */
@@ -92,6 +92,10 @@ var tableProProps = Object.assign({}, tableProps(), {
   },
   titleStyle: {
     type: Object
+  },
+  showTools: {
+    type: Boolean,
+    "default": true
   }
 });
 export default defineComponent({
@@ -114,7 +118,9 @@ export default defineComponent({
         sortField = _toRefs.sortField,
         sortFieldArr = _toRefs.sortFieldArr,
         data = _toRefs.data,
-        titleStyle = _toRefs.titleStyle;
+        titleStyle = _toRefs.titleStyle,
+        showTools = _toRefs.showTools,
+        size = _toRefs.size;
 
     var fullscreenState = ref(false);
     var syncMode = computed(function () {
@@ -127,7 +133,7 @@ export default defineComponent({
       dataSource: [],
       loading: false,
       pagination: Object.assign({}, pagination),
-      size: 'default',
+      size: size.value ? size.value : 'default',
       columns: columns.value.filter(function (item) {
         return item.show !== false;
       })
@@ -282,7 +288,7 @@ export default defineComponent({
       return fullscreenState.value ? null : _createVNode("div", {
         "class": "sgd-table-title",
         "style": titleStyle.value
-      }, [_createVNode("div", null, [(_slots$title = slots.title) === null || _slots$title === void 0 ? void 0 : _slots$title.call(slots, currentPageData)]), _createVNode("div", {
+      }, [_createVNode("div", null, [(_slots$title = slots.title) === null || _slots$title === void 0 ? void 0 : _slots$title.call(slots, currentPageData)]), showTools.value ? _createVNode("div", {
         "class": "sgd-table-title-btns"
       }, [_createVNode("div", null, [_createVNode(ReloadOutlined, {
         "onClick": onClick
@@ -310,7 +316,7 @@ export default defineComponent({
         "onClick": function onClick() {
           return fullscreenState.value = !fullscreenState.value;
         }
-      }, null)])])]);
+      }, null)])]) : null]);
     };
 
     var loadSyncData = function loadSyncData() {
@@ -399,9 +405,9 @@ export default defineComponent({
         "locale": zhCN.Table,
         "onChange": syncMode.value ? loadSyncData : loadAsyncData
       }), _objectSpread(_objectSpread({}, slots), {}, {
-        title: function title(currentPageData) {
+        title: slots.title || showTools.value ? function (currentPageData) {
           return renderTitle(currentPageData);
-        }
+        } : undefined
       }));
 
       return _createVNode(_resolveComponent("fullscreen"), {

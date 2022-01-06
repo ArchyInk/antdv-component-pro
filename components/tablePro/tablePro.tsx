@@ -2,7 +2,7 @@
  * @author: Archy
  * @Date: 2021-12-22 11:40:53
  * @LastEditors: Archy
- * @LastEditTime: 2021-12-28 13:49:52
+ * @LastEditTime: 2021-12-30 16:40:20
  * @FilePath: \sgd-pro-components\components\tablePro\tablePro.tsx
  * @description: 
  */
@@ -35,7 +35,8 @@ const tableProProps = Object.assign({}, tableProps(), {
   orderField: { type: String, default: 'order' },
   sortField: { type: String, default: 'sort' },
   clearBtnStyle: { type: Object },
-  titleStyle: { type: Object }
+  titleStyle: { type: Object },
+  showTools: { type: Boolean, default: true }
 })
 
 
@@ -73,7 +74,9 @@ export default defineComponent({
       sortField,
       sortFieldArr,
       data,
-      titleStyle
+      titleStyle,
+      showTools,
+      size
     } = toRefs(props)
 
     const fullscreenState = ref(false)
@@ -84,7 +87,7 @@ export default defineComponent({
       dataSource: [] as object[],
       loading: false as boolean,
       pagination: Object.assign({}, pagination),
-      size: 'default',
+      size: size.value ? size.value : 'default',
       columns: (columns.value as ColumnProProps[]).filter((item: ColumnProProps) => item.show !== false),
     })
 
@@ -153,7 +156,7 @@ export default defineComponent({
         fullscreenState.value ? null :
           (<div class="sgd-table-title" style={titleStyle.value}>
             <div>{slots.title?.(currentPageData)}</div>
-            <div class="sgd-table-title-btns">
+            {showTools.value ? <div class="sgd-table-title-btns">
               <div>
                 <ReloadOutlined onClick={onClick} />
               </div>
@@ -170,7 +173,7 @@ export default defineComponent({
               <div>
                 <FullscreenOutlined onClick={() => fullscreenState.value = !fullscreenState.value} />
               </div>
-            </div>
+            </div> : null}
           </div>)
       )
     }
@@ -290,9 +293,10 @@ export default defineComponent({
       const renderTable = (
         <Table {..._props} locale={zhCN.Table} onChange={syncMode.value ? loadSyncData : loadAsyncData} v-slots={{
           ...slots,
-          title: (currentPageData: PanelRender<DefaultRecordType>) => renderTitle(currentPageData),
-        }}>
-        </Table>
+          title: (slots.title || showTools.value) ? (currentPageData: PanelRender<DefaultRecordType>) => renderTitle(currentPageData) : undefined,
+        }
+        }>
+        </Table >
       )
 
       return (
