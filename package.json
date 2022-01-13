@@ -1,6 +1,6 @@
 {
   "name": "sgd-pro-components",
-  "version": "0.0.27",
+  "version": "0.0.29",
   "main": "es/components/index.js",
   "author": "archy",
   "files": [

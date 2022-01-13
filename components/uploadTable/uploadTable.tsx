@@ -2,7 +2,7 @@
  * @author: Archy
  * @Date: 2021-12-28 10:01:12
  * @LastEditors: Archy
- * @LastEditTime: 2022-01-05 10:21:51
+ * @LastEditTime: 2022-01-12 13:19:36
  * @FilePath: \sgd-pro-components\components\uploadTable\uploadTable.tsx
  * @description: 
  */
@@ -25,7 +25,9 @@ const uploadTableProps = {
     type: Array as PropType<Array<ColumnGroupType<any> | ColumnType<any>>>, default: () => [
       {
         title: '文件名',
-        dataIndex: 'fileName',
+        customRender: ({ record }: Record<string, any>) => {
+          return record.fileOldName ? record.fileOldName : record.fileName
+        }
       }, {
         title: '文件大小',
         dataIndex: 'fileSize',

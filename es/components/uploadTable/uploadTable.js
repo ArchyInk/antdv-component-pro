@@ -8,7 +8,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
  * @author: Archy
  * @Date: 2021-12-28 10:01:12
  * @LastEditors: Archy
- * @LastEditTime: 2022-01-05 10:21:51
+ * @LastEditTime: 2022-01-12 13:19:36
  * @FilePath: \sgd-pro-components\components\uploadTable\uploadTable.tsx
  * @description: 
  */
@@ -36,12 +36,15 @@ var uploadTableProps = {
     "default": function _default() {
       return [{
         title: '文件名',
-        dataIndex: 'fileName'
+        customRender: function customRender(_ref) {
+          var record = _ref.record;
+          return record.fileOldName ? record.fileOldName : record.fileName;
+        }
       }, {
         title: '文件大小',
         dataIndex: 'fileSize',
-        customRender: function customRender(_ref) {
-          var text = _ref.text;
+        customRender: function customRender(_ref2) {
+          var text = _ref2.text;
           return formatFileSize(text * 1);
         }
       }, {
@@ -72,9 +75,9 @@ export default defineComponent({
   name: 'UploadTable',
   props: uploadTableProps,
   emits: ['download', 'del', 'uploadResult', 'cancel', 'submit'],
-  setup: function setup(props, _ref2) {
-    var slots = _ref2.slots,
-        emit = _ref2.emit;
+  setup: function setup(props, _ref3) {
+    var slots = _ref3.slots,
+        emit = _ref3.emit;
 
     var download = function download() {
       emit('download');
@@ -89,10 +92,10 @@ export default defineComponent({
       del: del
     };
 
-    var fileChange = function fileChange(_ref3) {
-      var file = _ref3.file,
-          fileList = _ref3.fileList,
-          event = _ref3.event;
+    var fileChange = function fileChange(_ref4) {
+      var file = _ref4.file,
+          fileList = _ref4.fileList,
+          event = _ref4.event;
       fileList.find(function (item) {
         return item.uid === file.uid;
       }).event = event;
@@ -231,7 +234,7 @@ export default defineComponent({
     };
 
     var beforeUpload = /*#__PURE__*/function () {
-      var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(file) {
+      var _ref5 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(file) {
         var p;
         return regeneratorRuntime.wrap(function _callee$(_context) {
           while (1) {
@@ -258,7 +261,7 @@ export default defineComponent({
       }));
 
       return function beforeUpload(_x) {
-        return _ref4.apply(this, arguments);
+        return _ref5.apply(this, arguments);
       };
     }();
 
