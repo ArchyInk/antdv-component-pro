@@ -2,7 +2,7 @@
  * @Author: Sgdchy
  * @Date: 2021-08-10 14:29:49
  * @LastEditors: Archy
- * @LastEditTime: 2022-01-13 10:11:14
+ * @LastEditTime: 2022-01-13 11:02:49
  * @FilePath: \sgd-pro-components\components\imageThumb\imageThumb.tsx
  * @description:
  */
@@ -15,7 +15,7 @@ import './style/index.less'
 
 const imageThumbProps = Object.assign({}, imageProps, {
   thumb: { type: Boolean, default: false },
-  thumbSrc: { type: String, default: false },
+  thumbSrc: { type: String },
 })
 
 export type ImageThumbProps = typeof imageThumbProps
