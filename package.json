@@ -1,6 +1,6 @@
 {
   "name": "sgd-pro-components",
-  "version": "0.0.32",
+  "version": "0.0.33",
   "main": "es/components/index.js",
   "author": "archy",
   "files": [
@@ -11,7 +11,8 @@
   "scripts": {
     "preview": "vite",
     "dev": "tsc --watch",
-    "build": "tsc"
+    "build": "tsc",
+    "compile":"ink-cli compile"
   },
   "dependencies": {
     "@ant-design/icons-vue": "^6.0.1",

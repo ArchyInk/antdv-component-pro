@@ -2,7 +2,7 @@
  * @author: Archy
  * @Date: 2021-12-22 11:40:53
  * @LastEditors: Archy
- * @LastEditTime: 2021-12-30 16:40:20
+ * @LastEditTime: 2022-01-19 17:01:03
  * @FilePath: \sgd-pro-components\components\tablePro\tablePro.tsx
  * @description: 
  */
@@ -267,6 +267,7 @@ export default defineComponent({
             pageSize: pageSize.value,
           }
         ))
+      local.dataSource = []
       syncMode.value ? loadSyncData() : loadAsyncData()
     }
 
